@@ -10,7 +10,7 @@ import {BridgeBase} from "../base/BridgeBase.sol";
 contract MintBridge is BridgeBase {
 
     //later we can map auxdata to nft contracts during a one time set up
-    address NFTContract = 0x0;
+    address NFTContract = 0xB228D7B6e099618Ca71bd5522B3a8c3788A8F172;
 
     mapping (uint256 => uint256) public owners;
     
