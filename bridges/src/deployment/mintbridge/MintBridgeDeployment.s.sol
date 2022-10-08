@@ -9,6 +9,8 @@ contract MintBridgeDeployment is BaseDeployment {
     function deploy() public returns (address) {
         emit log("Deploying mint bridge");
 
+        emit log_named_uint("acc blance", tx.origin.balance);
+
         vm.broadcast();
         MintBridge bridge = new MintBridge(ROLLUP_PROCESSOR);
 
