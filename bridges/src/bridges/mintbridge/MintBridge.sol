@@ -56,9 +56,9 @@ contract MintBridge is BridgeBase {
             // this should automatically mint the virtual asset
 
             return (1, 0, false);
-        } else if (_inputAssetA.assetType == AztecTypes.AztecAssetType.Virtual){
+        } else if (_inputAssetA.assetType == AztecTypes.AztecAssetType.VIRTUAL){
         
-            uint256 NFTId = owners[_inputAssetA.assetId]; //  `assetId` is currently assigned as `_interactionNonce`
+            uint256 NFTId = owners[_inputAssetA.id]; //  `assetId` is currently assigned as `_interactionNonce`
 
             IERC721(NFTContract).transferFrom(address(0), msg.sender, NFTId); // transfer the NFT from the bridge contract to the owner.
 
