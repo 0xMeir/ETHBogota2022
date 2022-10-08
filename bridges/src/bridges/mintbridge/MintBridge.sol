@@ -10,7 +10,7 @@ import {BridgeBase} from "../base/BridgeBase.sol";
 contract MintBridge is BridgeBase {
 
     //later we can map auxdata to nft contracts during a one time set up
-    address NFTContract = 0x0;
+    address NFTContract = 0xB228D7B6e099618Ca71bd5522B3a8c3788A8F172;
 
     mapping (uint256 => uint256) public owners;
     
@@ -56,9 +56,9 @@ contract MintBridge is BridgeBase {
             // this should automatically mint the virtual asset
 
             return (1, 0, false);
-        } else if (_inputAssetA.assetType == AztecTypes.AztecAssetType.Virtual){
+        } else if (_inputAssetA.assetType == AztecTypes.AztecAssetType.VIRTUAL){
         
-            uint256 NFTId = owners[_inputAssetA.assetId]; //  `assetId` is currently assigned as `_interactionNonce`
+            uint256 NFTId = owners[_inputAssetA.id]; //  `assetId` is currently assigned as `_interactionNonce`
 
             IERC721(NFTContract).transferFrom(address(0), msg.sender, NFTId); // transfer the NFT from the bridge contract to the owner.
 
