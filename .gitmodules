@@ -10,3 +10,6 @@
 [submodule "nft/lib/solmate"]
 	path = nft/lib/solmate
 	url = https://github.com/transmissions11/solmate
+[submodule "nft/lib/openzeppelin-contracts"]
+	path = nft/lib/openzeppelin-contracts
+	url = https://github.com/Openzeppelin/openzeppelin-contracts
