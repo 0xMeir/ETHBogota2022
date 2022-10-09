@@ -56,44 +56,91 @@ const Home: NextPage = () => {
     window.ethereum.on('accountsChanged', () => location.reload());
   });
 
+  // async function connect() {
+  //   setConnecting(true);
+  //   if (typeof window.ethereum !== 'undefined') {
+  //     try {
+  //       // let accounts = await ethereum.request({
+  //       //   method: 'eth_requestAccounts',
+  //       // });
+  //       // console.log(accounts);
+
+  //       // setEthAccount(EthAddress.fromString(accounts[0]));
+  //       // console.log(ethAccount);
+
+  //       // const ethersProvider: Web3Provider = new ethers.providers.Web3Provider(
+  //       //   window.ethereum
+  //       // );
+  //       // const ethereumProvider: EthereumProvider = new EthersAdapter(
+  //       //   ethersProvider
+  //       // );
+
+  //       // let ethSigner = ethersProvider.getSigner();
+
+  //       // let x = EthAddress.fromString(await ethSigner!.getAddress());
+
+  //       // setEthAccount(x);
+
+  //       const provider = new ethers.providers.Web3Provider(window.ethereum);
+  //       const ethereumProvider: EthereumProvider = new EthersAdapter(provider);
+
+  //       // Get Metamask ethAccount
+  //       await provider.send('eth_requestAccounts', []);
+  //       const mmSigner = provider.getSigner();
+  //       const mmAddress = EthAddress.fromString(await mmSigner.getAddress());
+  //       setEthAccount(mmAddress);
+
+  //       console.log(ethAccount);
+  //       //console.log(ethersProvider);
+
+  //       const generateSdk = await createAztecSdk(ethereumProvider, {
+  //         serverUrl: 'https://api.aztec.network/aztec-connect-testnet/falafel', // goerli testnet
+  //         pollInterval: 1000,
+  //         memoryDb: true,
+  //         debug: 'bb:*',
+  //         flavour: SdkFlavour.PLAIN,
+  //         minConfirmation: 1, // ETH block confirmations
+  //       });
+
+  //       await generateSdk.run();
+
+  //       console.log('Aztec SDK initialized', generateSdk);
+  //       setIsConnected(true);
+  //       // setSigner(ethersProvider.getSigner());
+
+  //       const { privateKey } = await generateSdk.generateSpendingKeyPair(
+  //         ethAccount!
+  //       );
+  //       const newSigner = await generateSdk.createSchnorrSigner(privateKey);
+  //       setSigner(newSigner);
+  //       setEthereumProvider(ethereumProvider);
+  //       setSdk(generateSdk);
+  //     } catch (e) {
+  //       console.log(e);
+  //     }
+  //   } else {
+  //     setIsConnected(false);
+  //   }
+  //   setConnecting(false);
+  // }
+
   async function connect() {
     setConnecting(true);
     if (typeof window.ethereum !== 'undefined') {
       try {
-        // let accounts = await ethereum.request({
-        //   method: 'eth_requestAccounts',
-        // });
-        // console.log(accounts);
+        let accounts = await ethereum.request({
+          method: 'eth_requestAccounts',
+        });
+        setEthAccount(EthAddress.fromString(accounts[0]));
 
-        // setEthAccount(EthAddress.fromString(accounts[0]));
-        // console.log(ethAccount);
+        const ethersProvider: Web3Provider = new ethers.providers.Web3Provider(
+          window.ethereum
+        );
+        const ethereumProvider: EthereumProvider = new EthersAdapter(
+          ethersProvider
+        );
 
-        // const ethersProvider: Web3Provider = new ethers.providers.Web3Provider(
-        //   window.ethereum
-        // );
-        // const ethereumProvider: EthereumProvider = new EthersAdapter(
-        //   ethersProvider
-        // );
-
-        // let ethSigner = ethersProvider.getSigner();
-
-        // let x = EthAddress.fromString(await ethSigner!.getAddress());
-
-        // setEthAccount(x);
-
-        const provider = new ethers.providers.Web3Provider(window.ethereum);
-        const ethereumProvider: EthereumProvider = new EthersAdapter(provider);
-
-        // Get Metamask ethAccount
-        await provider.send('eth_requestAccounts', []);
-        const mmSigner = provider.getSigner();
-        const mmAddress = EthAddress.fromString(await mmSigner.getAddress());
-        setEthAccount(mmAddress);
-
-        console.log(ethAccount);
-        //console.log(ethersProvider);
-
-        const generateSdk = await createAztecSdk(ethereumProvider, {
+        const sdk = await createAztecSdk(ethereumProvider, {
           serverUrl: 'https://api.aztec.network/aztec-connect-testnet/falafel', // goerli testnet
           pollInterval: 1000,
           memoryDb: true,
@@ -102,19 +149,15 @@ const Home: NextPage = () => {
           minConfirmation: 1, // ETH block confirmations
         });
 
-        await generateSdk.run();
+        await sdk.run();
 
-        console.log('Aztec SDK initialized', generateSdk);
+        console.log('Aztec SDK initialized', sdk);
+        console.log(ethAccount);
+
         setIsConnected(true);
-        // setSigner(ethersProvider.getSigner());
-
-        const { privateKey } = await generateSdk.generateSpendingKeyPair(
-          ethAccount!
-        );
-        const newSigner = await generateSdk.createSchnorrSigner(privateKey);
-        setSigner(newSigner);
+        setSigner(ethersProvider.getSigner());
         setEthereumProvider(ethereumProvider);
-        setSdk(generateSdk);
+        setSdk(sdk);
       } catch (e) {
         console.log(e);
       }
@@ -135,75 +178,11 @@ const Home: NextPage = () => {
     setAccountPublicKey(pubkey);
   }
 
-  async function initUsersAndPrintBalances() {
-    let account0 = (await sdk!.userExists(accountPublicKey!))
-      ? await sdk!.getUser(accountPublicKey!)
-      : await sdk!.addUser(accountPrivateKey!);
-
-    setAccount0(account0!);
-
-    if (await sdk?.isAccountRegistered(accountPublicKey!)) setUserExists(true);
-
-    await account0.awaitSynchronised();
-    // Wait for the SDK to read & decrypt notes to get the latest balances
-    console.log(
-      'zkETH balance',
-      sdk!.fromBaseUnits(
-        await sdk!.getBalance(account0.id, sdk!.getAssetIdBySymbol('ETH'))
-      )
-    );
-  }
-
   async function getSpendingKey() {
     const { privateKey } = await sdk!.generateSpendingKeyPair(ethAccount!);
     const signer = await sdk?.createSchnorrSigner(privateKey);
     console.log('signer added', signer);
     setSpendingSigner(signer);
-  }
-
-  async function registerNewAccount() {
-    const depositTokenQuantity: bigint = ethers.utils
-      .parseEther(amount.toString())
-      .toBigInt();
-    const recoverySigner = await sdk!.createSchnorrSigner(randomBytes(32));
-    let recoverPublicKey = recoverySigner.getPublicKey();
-    let txId = await registerAccount(
-      accountPublicKey!,
-      alias,
-      accountPrivateKey!,
-      spendingSigner!.getPublicKey(),
-      recoverPublicKey,
-      EthAddress.ZERO,
-      depositTokenQuantity,
-      TxSettlementTime.NEXT_ROLLUP,
-      ethAccount!,
-      sdk!
-    );
-    console.log('registration txId', txId);
-    console.log(
-      'lookup tx on explorer',
-      `https://aztec-connect-testnet-explorer.aztec.network/goerli/tx/${txId.toString()}`
-    );
-  }
-
-  async function depositEth() {
-    const depositTokenQuantity: bigint = ethers.utils
-      .parseEther(amount.toString())
-      .toBigInt();
-
-    let txId = await depositEthToAztec(
-      ethAccount!,
-      accountPublicKey!,
-      depositTokenQuantity,
-      TxSettlementTime.NEXT_ROLLUP,
-      sdk!
-    );
-
-    console.log('deposit txId', txId);
-    console.log(
-      'lookup tx on explorer',
-      `https://aztec-connect-testnet-explorer.aztec.network/goerli/tx/${txId.toString()}`
-    );
   }
 
   //   const elementAdaptor = createElementAdaptor(
@@ -235,7 +214,8 @@ const Home: NextPage = () => {
       signer!,
       bridge,
       tokenAssetValue,
-      fee
+      fee,
+      signer!
     );
 
     await controller.createProof();
@@ -259,7 +239,27 @@ const Home: NextPage = () => {
               <p>Private nft minting on Aztec</p>
               {hasMetamask ? (
                 isConnected ? (
-                  <Button onClick={() => mint()}>Mint</Button>
+                  <div>
+                    {sdk ? (
+                      <div>
+                        {accountPrivateKey ? (
+                          <div>
+                            {spendingSigner ? (
+                              <Button onClick={() => mint()}>Mint</Button>
+                            ) : (
+                              <Button onClick={() => getSpendingKey()}>
+                                Create Spending Key (Signer)
+                              </Button>
+                            )}
+                          </div>
+                        ) : (
+                          <Button onClick={() => login()}>Login</Button>
+                        )}
+                      </div>
+                    ) : (
+                      ''
+                    )}
+                  </div>
                 ) : (
                   <Button onClick={() => connect()}>Connect Wallet</Button>
                 )
@@ -277,72 +277,6 @@ const Home: NextPage = () => {
       </main>
 
       {connecting ? 'Please wait, setting up Aztec' : ''}
-      {sdk ? (
-        <div>
-          {accountPrivateKey ? (
-            <button onClick={() => initUsersAndPrintBalances()}>
-              Init User / Log Balance
-            </button>
-          ) : (
-            <button onClick={() => login()}>Login</button>
-          )}
-          {spendingSigner && !userExists ? (
-            <form>
-              <label>
-                Alias:
-                <input
-                  type="text"
-                  value={alias}
-                  onChange={(e) => setAlias(e.target.value)}
-                />
-              </label>
-            </form>
-          ) : (
-            ''
-          )}
-          {!spendingSigner && account0 ? (
-            <button onClick={() => getSpendingKey()}>
-              Create Spending Key (Signer)
-            </button>
-          ) : (
-            ''
-          )}
-          {spendingSigner ? (
-            <div>
-              <form>
-                <label>
-                  Deposit Amount:
-                  <input
-                    type="number"
-                    step="0.000000000000000001"
-                    min="0.01"
-                    value={amount}
-                    onChange={(e) => setAmount(e.target.valueAsNumber)}
-                  />
-                  ETH
-                </label>
-              </form>
-              {!userExists ? (
-                <button onClick={() => registerNewAccount()}>
-                  Register Alias + Deposit ≥0.1 ETH
-                </button>
-              ) : (
-                ''
-              )}
-            </div>
-          ) : (
-            ''
-          )}
-          {spendingSigner && account0 ? (
-            <button onClick={() => depositEth()}>Deposit ETH</button>
-          ) : (
-            ''
-          )}
-          <button onClick={() => console.log('sdk', sdk)}>Log SDK</button>
-        </div>
-      ) : (
-        ''
-      )}
     </div>
   );
 };
