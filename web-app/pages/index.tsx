@@ -208,14 +208,14 @@ const Home: NextPage = () => {
     };
 
     let fee = (await sdk!.getDefiFees(bridge))[DefiSettlementTime.INSTANT];
+    console.log(signer);
 
     const controller = sdk!.createDefiController(
       accountPublicKey!,
-      signer!,
+      spendingSigner!,
       bridge,
       tokenAssetValue,
-      fee,
-      signer!
+      fee
     );
 
     await controller.createProof();
