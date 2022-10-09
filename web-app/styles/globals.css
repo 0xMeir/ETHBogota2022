@@ -1,5 +1,5 @@
 :root {
-  --dark-color: #212224;
+  --dark-color: #111214;
   --light-color: #f8fcff;
 }
 
@@ -122,13 +122,16 @@ p {
 
 .wrapper {
   display: flex;
-  gap: 1rem;
+  gap: 5rem;
   align-items: center;
   height: 100%;
 }
 
 .content-wrapper {
   width: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .img-wrapper {
@@ -166,4 +169,6 @@ p {
   height: 42vw;
   border-radius: 1rem;
   background: #d9d9d9;
+  position: relative;
+  overflow: hidden;
 }
